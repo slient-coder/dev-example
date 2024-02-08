@@ -33,7 +33,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@unisat/wallet-sdk": "^1.1.1",
+    "@unisat/wallet-sdk": "^1.2.1",
     "axios": "^1.6.4"
   },
   "devDependencies": {

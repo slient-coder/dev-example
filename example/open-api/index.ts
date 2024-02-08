@@ -19,6 +19,33 @@ export interface CreateBidPrepareResponse {
   allBalance: number;
 }
 
+export interface UTXO {
+  address: string;
+  codeType: number;
+  height: number;
+  idx: number;
+  inscriptions: {
+    inscriptionId: string;
+    inscriptionNumber: number;
+    isBRC20: boolean;
+    moved: boolean;
+    offset: number;
+  }[];
+  isOpInRBF: boolean;
+  satoshi: number;
+  scriptPk: string;
+  scriptType: string;
+  txid: string;
+  vout: number;
+}
+
+interface InscriptionInfo {
+  address: string;
+  inscriptionNumber: number;
+  contentType: string;
+  utxo: UTXO;
+}
+
 class RequestError extends Error {
   constructor(
     public message: string,
@@ -215,6 +242,36 @@ export class OpenApi {
         psbtSettle,
         fromBase64,
       }
+    );
+    return response;
+  }
+
+  async getInscriptionInfo(inscriptionId: string) {
+    const response = await this.axios.get<null, InscriptionInfo>(
+      `/v1/indexer/inscription/info/${inscriptionId}`
+    );
+    return response;
+  }
+
+  async getAddressUtxoData(address: string, cursor = 0, size = 16) {
+    const response = await this.axios.get<
+      null,
+      {
+        cursor: number;
+        total: number;
+        totalConfirmed: number;
+        totalUnconfirmed: number;
+        totalUnconfirmedSpend: number;
+        utxo: UTXO[];
+      }
+    >(`/v1/indexer/address/${address}/utxo-data?cursor=${cursor}&size=${size}`);
+    return response;
+  }
+
+  async pushtx(txHex: string) {
+    const response = await this.axios.post<null, string>(
+      `/v1/indexer/local_pushtx`,
+      { txHex }
     );
     return response;
   }
